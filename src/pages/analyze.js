@@ -24,20 +24,27 @@ import {
 } from "@mui/material";
 import axios from "axios";
 
-type Result = {
-  text_name: string;
-  first_score: number;
-  seccond_score: number;
-  third_score: number;
-  fourth_score: number;
-  fifth_score: number;
-  overall_score: number;
-  overall_reason: string;
-};
+// type Result = {
+//   file_name: string;
+//   first_score: number;
+//   first_reson: string;
+//   second_score: number;
+//   second_reson: string;
+//   third_score: number;
+//   third_reson: string;
+//   fourth_score: number;
+//   fourth_reson: string;
+//   fifth_score: number;
+//   fifth_reson: string;
+//   overall_score: number;
+//   overall_reason: string;
+//   project_summary: string;
+//   access_token: string;
+// };
 
 export default function PDFAnalyzer() {
-  const [files, setFiles] = useState<File[]>([]);
-  const [results, setResults] = useState<Result[]>([]);
+  const [files, setFiles] = useState([]);
+  const [result, setResult] = useState({});
   const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -52,7 +59,6 @@ export default function PDFAnalyzer() {
         username,
         password,
       });
-      console.log(response);
       if (response) {
         setSession(response.data.access_token);
         setUsername("");
@@ -72,7 +78,7 @@ export default function PDFAnalyzer() {
     try {
       setSession("");
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -94,9 +100,9 @@ export default function PDFAnalyzer() {
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e) => {
     if (e.target.files) {
-      setResults([]);
+      setResult({});
       setFiles(Array.from(e.target.files));
     }
   };
@@ -114,10 +120,10 @@ export default function PDFAnalyzer() {
           "Content-Type": "multipart/form-data",
         },
       });
-
-      const data: Result[] = res.data;
-      setResults(data);
-    } catch (error: any) {
+      const data = res.data;
+      setResult(data);
+      setSession(data.access_token)
+    } catch (error) {
       console.error("Axios error:", error);
       alert(error?.response?.data?.message || "Failed to analyze.");
     } finally {
@@ -130,7 +136,7 @@ export default function PDFAnalyzer() {
       <AppBar position="static" color="default" elevation={1}>
         <Toolbar sx={{ gap: 2, flexWrap: "wrap" }}>
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            MyApp
+            DeepDoc
           </Typography>
           <Box component="form" sx={{ display: "flex", gap: 2 }}>
             <TextField
@@ -138,6 +144,7 @@ export default function PDFAnalyzer() {
               size="small"
               variant="outlined"
               value={username}
+              disabled={session != ""}
               onChange={(e) => setUsername(e.target.value)}
             />
             <TextField
@@ -146,6 +153,7 @@ export default function PDFAnalyzer() {
               size="small"
               variant="outlined"
               value={password}
+              disabled={session != ""}
               onChange={(e) => setPassword(e.target.value)}
             />
             <Button
@@ -163,13 +171,13 @@ export default function PDFAnalyzer() {
             >
               Logout
             </Button>
-            <Button
+            {/* <Button
               variant="outlined"
               color="secondary"
               onClick={() => setRegisterOpen(true)}
             >
               Register
-            </Button>
+            </Button> */}
           </Box>
         </Toolbar>
       </AppBar>
@@ -212,8 +220,8 @@ export default function PDFAnalyzer() {
         </DialogActions>
       </Dialog>
 
-      <Box sx={{ maxWidth: 900, mx: "auto", mt: 4, p: 2 }}>
-        <Typography variant="h4" gutterBottom>
+      <Box sx={{ mx: "auto", mt: 4, p: 2 }}>
+        <Typography variant="h2" gutterBottom>
           PDF Project Analyzer
         </Typography>
 
@@ -233,53 +241,69 @@ export default function PDFAnalyzer() {
               ? `${files.length} file(s) selected`
               : "No files selected"}
           </Typography>
-        </Stack>
-
-        <Button
+          <Button
           variant="contained"
           onClick={handleAnalyze}
           disabled={files.length === 0 || loading || session == ""}
         >
           {loading ? <CircularProgress size={24} /> : "Analyze"}
         </Button>
-
-        {results.length > 0 && (
+        </Stack>
+        {result.file_name ? (
+          <>
+            <Box>
+              <Typography variant="h4" gutterBottom>
+                Project Summary
+              </Typography>
+              <Typography variant="h6" sx={{ mt: 2 }}>
+                {result.project_summary}
+              </Typography>
+            </Box>
+          </>
+        ) : null}
+        {result.file_name ? (
           <Box sx={{ mt: 4 }}>
-            <Typography variant="h6" gutterBottom>
-              Analysis Results
+            <Typography variant="h4" gutterBottom>
+              Analysis Results: {result.file_name}
             </Typography>
             <TableContainer component={Paper}>
               <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>File Name</TableCell>
-                    <TableCell>First Dimension Score</TableCell>
-                    <TableCell>Seccond Dimension Score</TableCell>
-                    <TableCell>Third Dimension Score</TableCell>
-                    <TableCell>Fourth Dimension Score</TableCell>
-                    <TableCell>Fifth Dimension Score</TableCell>
-                    <TableCell>Over All Score</TableCell>
-                    <TableCell>Reasoning</TableCell>
-                  </TableRow>
-                </TableHead>
                 <TableBody>
-                  {results.map((res, index) => (
-                    <TableRow key={index}>
-                      <TableCell>{res.text_name}</TableCell>
-                      <TableCell>{res.first_score}</TableCell>
-                      <TableCell>{res.seccond_score}</TableCell>
-                      <TableCell>{res.third_score}</TableCell>
-                      <TableCell>{res.fourth_score}</TableCell>
-                      <TableCell>{res.fifth_score}</TableCell>
-                      <TableCell>{res.overall_score}</TableCell>
-                      <TableCell>{res.overall_reason}</TableCell>
-                    </TableRow>
-                  ))}
+                  <TableRow>
+                    <TableCell align="left">First Dimension</TableCell>
+                    <TableCell align="center">{result.first_score}</TableCell>
+                    <TableCell align="left">{result.first_reson}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell align="left">Second Dimension</TableCell>
+                    <TableCell align="center">{result.second_score}</TableCell>
+                    <TableCell align="left">{result.second_reson}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell align="left">Third Dimension</TableCell>
+                    <TableCell align="center">{result.third_score}</TableCell>
+                    <TableCell align="left">{result.third_reson}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell align="left">Fourth Dimension</TableCell>
+                    <TableCell align="center">{result.fourth_score}</TableCell>
+                    <TableCell align="left">{result.fourth_reson}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell align="left">Fifth Dimension</TableCell>
+                    <TableCell align="center">{result.fifth_score}</TableCell>
+                    <TableCell align="left">{result.fifth_reson}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell align="left">Over All</TableCell>
+                    <TableCell align="center">{result.overall_score}</TableCell>
+                    <TableCell align="left">{result.overall_reason}</TableCell>
+                  </TableRow>
                 </TableBody>
               </Table>
             </TableContainer>
           </Box>
-        )}
+        ) : null}
       </Box>
     </>
   );
