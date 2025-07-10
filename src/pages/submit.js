@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Box,
   Button,
@@ -8,40 +8,47 @@ import {
   InputLabel,
   FormHelperText,
   Stack,
-} from '@mui/material';
+  CircularProgress,
+} from "@mui/material";
+import axios from "axios";
 
 export default function ProjectSubmissionForm() {
-
-  const [certificates, setCertificates] = useState({
+  const [evidence, setEvidence] = useState({
     dimension1: null,
     dimension2: null,
     dimension3: null,
     dimension4: null,
     dimension5: null,
   });
-
   const [projectFile, setProjectFile] = useState(null);
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const handleCertificateChange = (e, key) => {
-    setCertificates({ ...certificates, [key]: e.target.files[0] });
+    setEvidence({ ...evidence, [key]: e.target.files[0] });
     setErrors((prev) => ({ ...prev, [key]: null }));
   };
 
   const handleProjectChange = (e) => {
-    setProjectFile(e.target.files[0]);
+    const file = e.target.files[0];
+    if (file && file.size > 10 * 1024 * 1024) {
+      setErrors((prev) => ({ ...prev, project: "File size must be less than 10MB" }));
+      return;
+    }
+    setProjectFile(file);
     setErrors((prev) => ({ ...prev, project: null }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
+    setLoading(true);
     e.preventDefault();
 
     const newErrors = {};
-    Object.entries(certificates).forEach(([key, file]) => {
-      if (!file) newErrors[key] = 'Required';
+    Object.entries(evidence).forEach(([key, file]) => {
+      if (!file) newErrors[key] = "Required";
     });
 
-    if (!projectFile) newErrors.project = 'Required';
+    if (!projectFile) newErrors.project = "Required";
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -49,21 +56,26 @@ export default function ProjectSubmissionForm() {
     }
 
     const formData = new FormData();
-    Object.entries(certificates).forEach(([key, file]) => {
-      formData.append(`certificate_${key}`, file);
+    Object.entries(evidence).forEach(([key, file]) => {
+      formData.append("files", file);
     });
-    formData.append('project', projectFile);
-
-    fetch('/api/submit-project', {
-      method: 'POST',
-      body: formData,
-    })
-      .then(() => alert('Submitted!'))
-      .catch(() => alert('Submission failed'));
+    formData.append("files", projectFile);
+    const response = await axios.post(
+      "http://localhost:8000/uploadFiles",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    if(response){
+      setLoading(false);
+    }
   };
 
   return (
-    <Box sx={{ maxWidth: 800, mx: 'auto', p: 3 }}>
+    <Box sx={{ maxWidth: 800, mx: "auto", p: 3 }}>
       <Typography variant="h4" align="center" gutterBottom>
         Project Submission Form
       </Typography>
@@ -84,7 +96,7 @@ export default function ProjectSubmissionForm() {
                     key={key}
                     variant="outlined"
                     sx={{
-                      width: '95%',
+                      width: "95%",
                       p: 2,
                     }}
                   >
@@ -95,8 +107,9 @@ export default function ProjectSubmissionForm() {
                     <input
                       type="file"
                       accept=".pdf"
+                      multiple
                       onChange={(e) => handleCertificateChange(e, key)}
-                      style={{ display: 'block', marginTop: '8px' }}
+                      style={{ display: "block", marginTop: "8px" }}
                     />
                     {errors[key] && (
                       <FormHelperText error>{errors[key]}</FormHelperText>
@@ -115,13 +128,13 @@ export default function ProjectSubmissionForm() {
               Section 2: Upload Your Final Project (PDF)
             </Typography>
             <Stack alignItems="center">
-              <Card variant="outlined" sx={{ width: '95%', p: 2 }}>
+              <Card variant="outlined" sx={{ width: "95%", p: 2 }}>
                 <InputLabel required>Project File</InputLabel>
                 <input
                   type="file"
                   accept=".pdf"
                   onChange={handleProjectChange}
-                  style={{ display: 'block', marginTop: '8px' }}
+                  style={{ display: "block", marginTop: "8px" }}
                 />
                 {errors.project && (
                   <FormHelperText error>{errors.project}</FormHelperText>
@@ -133,8 +146,8 @@ export default function ProjectSubmissionForm() {
 
         {/* Submit */}
         <Box textAlign="center">
-          <Button type="submit" variant="contained" size="large">
-            Submit Project
+          <Button type="submit" variant="contained" disabled={loading}>
+            {loading ? <><CircularProgress size={24} />{"analyzing please wait."}</> : "Submit Project"}
           </Button>
         </Box>
       </form>
