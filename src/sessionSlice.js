@@ -2,7 +2,8 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
-  token: null
+  access_token: null,
+  refesh_token: null
 }
 
 export const sessionSlice = createSlice({
@@ -10,10 +11,12 @@ export const sessionSlice = createSlice({
   initialState,
   reducers: {
     setSession(state, action) {
-      state.token = action.payload.token
+      state.access_token = action.payload.access_token
+      state.refesh_token = action.payload.refresh_token
     },
     clearSession(state) {
-      state.token = null
+      state.access_token = null,
+      state.refesh_token = null
     }
   }
 })
