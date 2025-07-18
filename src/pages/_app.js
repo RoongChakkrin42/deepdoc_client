@@ -6,7 +6,7 @@ import { store } from "../store";
 export default function MyApp({ Component, pageProps }) {
   return (
     <Provider store={store}>
-      <Login />
+      {/* <Login /> */}
       <Layout>
         <Component {...pageProps} />
       </Layout>
