@@ -1,10 +1,13 @@
 import { Box, Button, Typography, AppBar, Toolbar } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
 import { clearSession } from "../sessionSlice";
+import { useRouter } from "next/router";
 
 export default function Layout({ children }) {
   const session = useSelector((state) => state.session);
   const dispatch = useDispatch();
+  const router = useRouter();
+  
   const handleLogout = async () => {
     try {
       dispatch(clearSession());
@@ -14,18 +17,32 @@ export default function Layout({ children }) {
   };
   return (
     <>
-      <AppBar position="fixed" color="default" elevation={1}>
+      <AppBar position="fixed" color="default" elevation={1} sx={{ zIndex: 9999 }}>
         <Toolbar sx={{ gap: 2, flexWrap: "wrap" }}>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+          <Typography variant="h4" sx={{ mr: 2 }}>
             DeepDoc
           </Typography>
-          <Box component="form" sx={{ display: "flex", gap: 2 }}>
-            {session.access_token == null ? null : (
+          <Typography 
+            variant="subtitle1" 
+            sx={{ mr: 2, cursor: 'pointer' }} 
+            onClick={() => router.push("/submit")}
+          >
+            Submit
+          </Typography>
+          <Typography 
+            variant="subtitle1" 
+            sx={{ mr: 2, cursor: 'pointer' }} 
+            onClick={() => router.push("/results")}
+          >
+            Results
+          </Typography>
+          <Box sx={{ flexGrow: 1 }} />
+          <Box sx={{ display: "flex", gap: 2 }}>
+            {session.access_token != null && (
               <Button
                 color="error"
                 variant="contained"
                 onClick={handleLogout}
-                disabled={session.access_token == null}
               >
                 Logout
               </Button>
@@ -49,6 +66,7 @@ export default function Layout({ children }) {
           background: "#eee",
           padding: "16px",
           textAlign: "center",
+          zIndex: 9999
         }}
       >
         <p style={{ margin: 0 }}>© 2025 DeepDoc</p>

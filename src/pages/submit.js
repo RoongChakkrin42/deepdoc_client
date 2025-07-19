@@ -1,21 +1,17 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Box,
   Button,
   Card,
   CardContent,
   Typography,
-  InputLabel,
-  FormHelperText,
   Stack,
-  CircularProgress,
+  TextField,
 } from "@mui/material";
 import axios from "axios";
-import Login from "../components/loginDialog";
 
 export default function ProjectSubmissionForm() {
   const [projectFile, setProjectFile] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [evidence1, setEvidence1] = useState({
     first: null,
@@ -40,6 +36,11 @@ export default function ProjectSubmissionForm() {
     second: null,
   });
 
+  const [studentName, setStudentName] = useState("");
+  const [department, setDepartment] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+
   const handleProjectChange = (e) => {
     const file = e.target.files;
     if (file && file.size > 10 * 1024 * 1024) {
@@ -50,8 +51,7 @@ export default function ProjectSubmissionForm() {
   };
 
   const handleSubmit = async (e) => {
-    setLoading(true);
-    setDone(false);
+    setDone(true);
     e.preventDefault();
     const formData = new FormData();
     if (evidence1.first) {
@@ -119,19 +119,19 @@ export default function ProjectSubmissionForm() {
         formData.append("project", projectFile[i]);
       }
     }
-    const response = await axios.post(
-      "http://localhost:8000/uploadFiles",
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-    if (response) {
-      setLoading(false);
-      setDone(true);
-    }
+    const jsonData = {
+      name: studentName,
+      department: department,
+      email: email,
+      phone: phone
+    };
+    formData.append("data", JSON.stringify(jsonData));
+
+    await axios.post("http://localhost:8000/uploadFiles", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
   };
 
   return (
@@ -143,6 +143,13 @@ export default function ProjectSubmissionForm() {
         </Typography>
 
         <form onSubmit={handleSubmit}>
+          <Stack spacing={2} sx={{ mb: 2 }}>
+            <TextField required label="ชื่อ นามสกุล" onChange={(e) => setStudentName(e.target.value)}/>
+            <TextField required label="คณะ หรือ สังกัด" onChange={(e) => setDepartment(e.target.value)}/>
+            <TextField required label="อีเมลล์" onChange={(e) => setEmail(e.target.value)}/>
+            <TextField required label="เบอร์โทรศัพท์" onChange={(e) => setPhone(e.target.value)}/>
+          </Stack>
+
           {/* Section 1 */}
           <Card sx={{ mb: 2 }}>
             <CardContent>
@@ -604,13 +611,8 @@ export default function ProjectSubmissionForm() {
 
           {/* Submit */}
           <Box textAlign="center">
-            <Button type="submit" variant="contained" disabled={loading}>
-              {loading ? (
-                <>
-                  <CircularProgress size={36} />
-                  {"analyzing please wait."}
-                </>
-              ) : done ? (
+            <Button type="submit" variant="contained" disabled={done}>
+              {done ? (
                 <Typography variant="h6">Submited</Typography>
               ) : (
                 <Typography variant="h6">Submit</Typography>
