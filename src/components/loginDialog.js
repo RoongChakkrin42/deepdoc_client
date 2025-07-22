@@ -24,9 +24,10 @@ export default function Login() {
         password,
       });
       if (response) {
-        dispatch(setSession({ token: response.data.access_token }));
+        dispatch(setSession({ access_token: response.data.access_token, refesh_token: response.data.refesh_token}));
         setUsername("");
         setPassword("");
+        console.log(response)
       } else {
         alert("invalid username or password");
       }
@@ -37,7 +38,7 @@ export default function Login() {
 
   return (
     <Dialog 
-      open={session.token == null}
+      open={session.access_token == null}
       onKeyDown={(e) => e.key === 'Enter' && username && password && handleLogin()}
     >
       <DialogTitle>Login</DialogTitle>

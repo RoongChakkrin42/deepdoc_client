@@ -244,7 +244,7 @@ export default function PDFAnalyzer() {
           <Button
           variant="contained"
           onClick={handleAnalyze}
-          disabled={files.length === 0 || loading || session == ""}
+          // disabled={files.length === 0 || loading || session == ""}
         >
           {loading ? <CircularProgress size={24} /> : "Analyze"}
         </Button>
