@@ -7,6 +7,7 @@ import {
   Typography,
   Stack,
   TextField,
+  CircularProgress,
 } from "@mui/material";
 import axios from "axios";
 
@@ -40,6 +41,7 @@ export default function ProjectSubmissionForm() {
   const [department, setDepartment] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [submit, setSubmit] = useState(false);
 
   const handleProjectChange = (e) => {
     const file = e.target.files;
@@ -51,7 +53,6 @@ export default function ProjectSubmissionForm() {
   };
 
   const handleSubmit = async (e) => {
-    setDone(true);
     e.preventDefault();
     const formData = new FormData();
     if (evidence1.first) {
@@ -123,15 +124,26 @@ export default function ProjectSubmissionForm() {
       name: studentName,
       department: department,
       email: email,
-      phone: phone
+      phone: phone,
     };
     formData.append("data", JSON.stringify(jsonData));
 
-    await axios.post(`${process.env.NEXT_PUBLIC_BACKENDURL || "http://localhost:8000"}/uploadFiles`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    await axios
+      .post(
+        `${
+          process.env.NEXT_PUBLIC_BACKENDURL || "http://localhost:8000"
+        }/uploadFiles`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      )
+      .then(() => {
+        setDone(true);
+        setSubmit(false);
+      });
   };
 
   return (
@@ -144,10 +156,26 @@ export default function ProjectSubmissionForm() {
 
         <form onSubmit={handleSubmit}>
           <Stack spacing={2} sx={{ mb: 2 }}>
-            <TextField required label="ชื่อ นามสกุล" onChange={(e) => setStudentName(e.target.value)}/>
-            <TextField required label="คณะ หรือ สังกัด" onChange={(e) => setDepartment(e.target.value)}/>
-            <TextField required label="อีเมลล์" onChange={(e) => setEmail(e.target.value)}/>
-            <TextField required label="เบอร์โทรศัพท์" onChange={(e) => setPhone(e.target.value)}/>
+            <TextField
+              required
+              label="ชื่อ นามสกุล"
+              onChange={(e) => setStudentName(e.target.value)}
+            />
+            <TextField
+              required
+              label="คณะ หรือ สังกัด"
+              onChange={(e) => setDepartment(e.target.value)}
+            />
+            <TextField
+              required
+              label="อีเมลล์"
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <TextField
+              required
+              label="เบอร์โทรศัพท์"
+              onChange={(e) => setPhone(e.target.value)}
+            />
           </Stack>
 
           {/* Section 1 */}
@@ -611,9 +639,16 @@ export default function ProjectSubmissionForm() {
 
           {/* Submit */}
           <Box textAlign="center">
-            <Button type="submit" variant="contained" disabled={done}>
+            <Button
+              onClick={() => setSubmit(true)}
+              type="submit"
+              variant="contained"
+              disabled={done}
+            >
               {done ? (
                 <Typography variant="h6">Submited</Typography>
+              ) : submit ? (
+                <CircularProgress/>
               ) : (
                 <Typography variant="h6">Submit</Typography>
               )}
