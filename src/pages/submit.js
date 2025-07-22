@@ -127,7 +127,7 @@ export default function ProjectSubmissionForm() {
     };
     formData.append("data", JSON.stringify(jsonData));
 
-    await axios.post("http://localhost:8000/uploadFiles", formData, {
+    await axios.post(`${process.env.NEXT_PUBLIC_BACKENDURL || "http://localhost:8000"}/uploadFiles`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
