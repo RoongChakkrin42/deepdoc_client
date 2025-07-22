@@ -35,7 +35,7 @@ export default function Result() {
 
   const handleChange = async (event) => {
     setYear(event.target.value);
-    const res = await axios.get("http://localhost:8000/resultlist", {
+    const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKENDURL || "http://localhost:8000"}/resultlist`, {
       params: { year: event.target.value },
       headers: {
         Authorization: `Bearer ${session.access_token}`,
