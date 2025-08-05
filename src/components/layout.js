@@ -17,21 +17,21 @@ export default function Layout({ children }) {
   };
   return (
     <>
-      <AppBar position="fixed" color="default" elevation={1} sx={{ zIndex: 9999 }}>
-        <Toolbar sx={{ gap: 2, flexWrap: "wrap" }}>
-          <Typography variant="h4" sx={{ mr: 2 }}>
+      <AppBar position="fixed" elevation={1} sx={{ zIndex: 9999, backgroundColor: '#eb038b' }}>
+        <Toolbar sx={{ gap: 3, flexWrap: "wrap" }}>
+          <Typography variant="h4">
             DeepDoc
           </Typography>
           <Typography 
             variant="subtitle1" 
-            sx={{ mr: 2, cursor: 'pointer' }} 
+            sx={{ cursor: 'pointer' }} 
             onClick={() => router.push("/submit")}
           >
             Submit
           </Typography>
           <Typography 
             variant="subtitle1" 
-            sx={{ mr: 2, cursor: 'pointer' }} 
+            sx={{ cursor: 'pointer' }} 
             onClick={() => router.push("/results")}
           >
             Results
@@ -69,7 +69,7 @@ export default function Layout({ children }) {
           zIndex: 9999
         }}
       >
-        <p style={{ margin: 0 }}>© 2025 DeepDoc</p>
+        <p style={{ margin: 0 }}>© 2025 DeepDoc Powered by Chulalongkorn University</p>
       </footer>
     </>
   );
