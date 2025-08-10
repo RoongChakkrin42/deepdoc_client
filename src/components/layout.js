@@ -17,34 +17,34 @@ export default function Layout({ children }) {
   };
   return (
     <>
-      <AppBar position="fixed" color="default" elevation={1} sx={{ zIndex: 9999 }}>
-        <Toolbar sx={{ gap: 2, flexWrap: "wrap" }}>
-          <Typography variant="h4" sx={{ mr: 2 }}>
+      <AppBar position="fixed" elevation={1} sx={{ zIndex: 9999, backgroundColor: '#b43b6b' }}>
+        <Toolbar sx={{ gap: 3, flexWrap: "wrap" }}>
+          <Typography variant="h4">
             DeepDoc
           </Typography>
           <Typography 
             variant="subtitle1" 
-            sx={{ mr: 2, cursor: 'pointer' }} 
+            sx={{ cursor: 'pointer' }} 
             onClick={() => router.push("/submit")}
           >
-            Submit
+            ส่งโครงการ
           </Typography>
           <Typography 
             variant="subtitle1" 
-            sx={{ mr: 2, cursor: 'pointer' }} 
+            sx={{ cursor: 'pointer' }} 
             onClick={() => router.push("/results")}
           >
-            Results
+            ผลตรวจ
           </Typography>
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: "flex", gap: 2 }}>
             {session.access_token != null && (
               <Button
-                color="error"
                 variant="contained"
                 onClick={handleLogout}
+                sx={{ backgroundColor: 'white', color: 'black', '&:hover': { backgroundColor: '#f5f5f5' } }}
               >
-                Logout
+                ออกจากระบบ
               </Button>
             )}
           </Box>
