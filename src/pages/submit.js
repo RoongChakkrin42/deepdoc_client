@@ -111,7 +111,7 @@ export default function ProjectSubmissionForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validate()) return;
+    // if (!validate()) return;
     setDialogOpen(true);
     setLoading(true);
 
@@ -165,7 +165,7 @@ export default function ProjectSubmissionForm() {
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Typography variant="h4" align="center" gutterBottom>
-        Project Submission Form
+        แบบฟอร์มการส่งโครงการ
       </Typography>
       <Box component="form" onSubmit={handleSubmit}>
         <Stack spacing={2} sx={{ mb: 4 }}>
@@ -177,6 +177,12 @@ export default function ProjectSubmissionForm() {
             error={Boolean(errors.projectName)}
             helperText={errors.projectName && "กรุณากรอกชื่อโครงการ"}
             onChange={(e) => setProjectName(e.target.value)}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "30px",
+                backgroundColor: "white",
+              },
+            }}
           />
           <TextField
             inputRef={nameRef}
@@ -186,6 +192,12 @@ export default function ProjectSubmissionForm() {
             error={Boolean(errors.name)}
             helperText={errors.name && "กรุณากรอกชื่อ"}
             onChange={(e) => setStudentName(e.target.value)}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "30px",
+                backgroundColor: "white",
+              },
+            }}
           />
           <TextField
             inputRef={deptRef}
@@ -195,6 +207,12 @@ export default function ProjectSubmissionForm() {
             error={Boolean(errors.department)}
             helperText={errors.department && "กรุณากรอกคณะ"}
             onChange={(e) => setDepartment(e.target.value)}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "30px",
+                backgroundColor: "white",
+              },
+            }}
           />
           <TextField
             inputRef={emailRef}
@@ -204,6 +222,12 @@ export default function ProjectSubmissionForm() {
             error={Boolean(errors.email)}
             helperText={errors.email && "กรุณากรอกอีเมลล์"}
             onChange={(e) => setEmail(e.target.value)}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "30px",
+                backgroundColor: "white",
+              },
+            }}
           />
           <TextField
             inputRef={phoneRef}
@@ -213,190 +237,530 @@ export default function ProjectSubmissionForm() {
             error={Boolean(errors.phone)}
             helperText={errors.phone && "กรุณากรอกเบอร์โทรศัพท์"}
             onChange={(e) => setPhone(e.target.value)}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "30px",
+                backgroundColor: "white",
+              },
+            }}
           />
         </Stack>
 
         {/* Evidence Sections */}
-        <Card sx={{ mb: 4 }}>
+        <Card
+          sx={{
+            mb: 4,
+            border: 1,
+            borderRadius: "30px",
+          }}
+        >
           <CardContent>
-            <Typography variant="h6" gutterBottom>
+            <Typography variant="h6" gutterBottom sx={{ textAlign: "center" }}>
               การกำกับความเสี่ยงและธรรมาภิบาลองค์กร
             </Typography>
             <Stack spacing={2}>
-              <Card variant="outlined" sx={{ p: 2 }}>
+              <Card variant="outlined" sx={{ p: 2, borderRadius: "15px" }}>
                 <Typography variant="subtitle1">
                   การสื่อสารนโยบายการบริหารความเสี่ยงแบบบูรณาการของจุฬาลงกรณ์มหาวิทยาลัย
                 </Typography>
-                <input
-                  type="file"
-                  accept=".pdf"
-                  multiple
-                  onChange={(e) =>
-                    setEvidence1({ ...evidence1, first: e.target.files })
-                  }
-                />
+                <Stack direction={"row"} spacing={2}>
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    multiple
+                    onChange={(e) =>
+                      setEvidence1({ ...evidence1, first: e.target.files })
+                    }
+                    style={{ display: "none" }}
+                    id="evidence1-first"
+                  />
+                  <label
+                    htmlFor="evidence1-first"
+                    style={{
+                      borderRadius: 10,
+                      backgroundColor: "#b43b6b",
+                      color: "white",
+                      padding: "8px 12px",
+                      border: "none",
+                      cursor: "pointer",
+                      display: "inline-block",
+                      marginTop: "8px",
+                      marginLeft: 0,
+                      height: "20px",
+                    }}
+                  >
+                    อัปโหลด
+                  </label>
+                  {evidence1.first && (
+                    <span style={{ marginTop: "8px", fontSize: "14px" }}>
+                      {Array.from(evidence1.first).map((file, index) => (
+                        <div style={{ marginBottom: 8 }} key={index}>
+                          {file.name}
+                        </div>
+                      ))}
+                    </span>
+                  )}
+                </Stack>
               </Card>
-              <Card variant="outlined" sx={{ p: 2 }}>
+              <Card variant="outlined" sx={{ p: 2, borderRadius: "15px" }}>
                 <Typography variant="subtitle1">
                   การแต่งตั้งและสื่อสารความรับผิดชอบด้านการบริหารความเสี่ยง
                 </Typography>
-                <input
-                  type="file"
-                  accept=".pdf"
-                  multiple
-                  onChange={(e) =>
-                    setEvidence1({ ...evidence1, second: e.target.files })
-                  }
-                />
+                <Stack direction={"row"} spacing={2}>
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    multiple
+                    onChange={(e) =>
+                      setEvidence1({ ...evidence1, second: e.target.files })
+                    }
+                    style={{ display: "none" }}
+                    id="evidence1-second"
+                  />
+                  <label
+                    htmlFor="evidence1-second"
+                    style={{
+                      borderRadius: 10,
+                      backgroundColor: "#b43b6b",
+                      color: "white",
+                      padding: "8px 12px",
+                      border: "none",
+                      cursor: "pointer",
+                      display: "inline-block",
+                      marginTop: "8px",
+                      marginLeft: 0,
+                      height: "20px",
+                    }}
+                  >
+                    อัปโหลด
+                  </label>
+                  {evidence1.second && (
+                    <span style={{ marginTop: "8px", fontSize: "14px" }}>
+                      {Array.from(evidence1.second).map((file, index) => (
+                        <div style={{ marginBottom: 8 }} key={index}>
+                          {file.name}
+                        </div>
+                      ))}
+                    </span>
+                  )}
+                </Stack>
               </Card>
-              <Card variant="outlined" sx={{ p: 2 }}>
+              <Card variant="outlined" sx={{ p: 2, borderRadius: "15px" }}>
                 <Typography variant="subtitle1">
                   การประชุมคณะกรรมการบริหารความเสี่ยง
                 </Typography>
-                <input
-                  type="file"
-                  accept=".pdf"
-                  multiple
-                  onChange={(e) =>
-                    setEvidence1({ ...evidence1, third: e.target.files })
-                  }
-                />
+                <Stack direction={"row"} spacing={2}>
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    multiple
+                    onChange={(e) =>
+                      setEvidence1({ ...evidence1, third: e.target.files })
+                    }
+                    style={{ display: "none" }}
+                    id="evidence1-third"
+                  />
+                  <label
+                    htmlFor="evidence1-third"
+                    style={{
+                      borderRadius: 10,
+                      backgroundColor: "#b43b6b",
+                      color: "white",
+                      padding: "8px 12px",
+                      border: "none",
+                      cursor: "pointer",
+                      display: "inline-block",
+                      marginTop: "8px",
+                      marginLeft: 0,
+                      height: "20px",
+                    }}
+                  >
+                    อัปโหลด
+                  </label>
+                  {evidence1.third && (
+                    <span style={{ marginTop: "8px", fontSize: "14px" }}>
+                      {Array.from(evidence1.third).map((file, index) => (
+                        <div style={{ marginBottom: 8 }} key={index}>
+                          {file.name}
+                        </div>
+                      ))}
+                    </span>
+                  )}
+                </Stack>
               </Card>
-              <Card variant="outlined" sx={{ p: 2 }}>
+              <Card variant="outlined" sx={{ p: 2, borderRadius: "15px" }}>
                 <Typography variant="subtitle1">
                   การฝึกอบรมด้านการบริหารความเสี่ยง
                 </Typography>
-                <input
-                  type="file"
-                  accept=".pdf"
-                  multiple
-                  onChange={(e) =>
-                    setEvidence1({ ...evidence1, fourth: e.target.files })
-                  }
-                />
+                <Stack direction={"row"} spacing={2}>
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    multiple
+                    onChange={(e) =>
+                      setEvidence1({ ...evidence1, fourth: e.target.files })
+                    }
+                    style={{ display: "none" }}
+                    id="evidence1-fourth"
+                  />
+                  <label
+                    htmlFor="evidence1-fourth"
+                    style={{
+                      borderRadius: 10,
+                      backgroundColor: "#b43b6b",
+                      color: "white",
+                      padding: "8px 12px",
+                      border: "none",
+                      cursor: "pointer",
+                      display: "inline-block",
+                      marginTop: "8px",
+                      marginLeft: 0,
+                      height: "20px",
+                    }}
+                  >
+                    อัปโหลด
+                  </label>
+                  {evidence1.fourth && (
+                    <span style={{ marginTop: "8px", fontSize: "14px" }}>
+                      {Array.from(evidence1.fourth).map((file, index) => (
+                        <div style={{ marginBottom: 8 }} key={index}>
+                          {file.name}
+                        </div>
+                      ))}
+                    </span>
+                  )}
+                </Stack>
               </Card>
             </Stack>
           </CardContent>
         </Card>
 
-        <Card sx={{ mb: 4 }}>
+        <Card sx={{ mb: 4, border: 1, borderRadius: "30px" }}>
           <CardContent>
-            <Typography variant="h6" gutterBottom>
+            <Typography variant="h6" gutterBottom sx={{ textAlign: "center" }}>
               การประเมินความเสี่ยงและการวางแผนบริหารความเสี่ยง
             </Typography>
             <Stack spacing={2}>
-              <Card variant="outlined" sx={{ p: 2 }}>
+              <Card variant="outlined" sx={{ p: 2, borderRadius: "15px" }}>
                 <Typography variant="subtitle1">
                   การระบุความเสี่ยงของส่วนงาน/หน่วยงานสอดคล้องกับกรอบการบริหารความเสี่ยงของมหาวิทยาลัยและมีระบบการระบุที่ชัดเจน
                 </Typography>
-                <input
-                  type="file"
-                  accept=".pdf"
-                  multiple
-                  onChange={(e) =>
-                    setEvidence2({ ...evidence2, first: e.target.files })
-                  }
-                />
+                <Stack direction={"row"} spacing={2}>
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    multiple
+                    onChange={(e) =>
+                      setEvidence2({ ...evidence2, first: e.target.files })
+                    }
+                    style={{ display: "none" }}
+                    id="evidence2-first"
+                  />
+                  <label
+                    htmlFor="evidence2-first"
+                    style={{
+                      borderRadius: 10,
+                      backgroundColor: "#b43b6b",
+                      color: "white",
+                      padding: "8px 12px",
+                      border: "none",
+                      cursor: "pointer",
+                      display: "inline-block",
+                      marginTop: "8px",
+                      marginLeft: 0,
+                      height: "20px",
+                    }}
+                  >
+                    อัปโหลด
+                  </label>
+                  {evidence2.first && (
+                    <span style={{ marginTop: "8px", fontSize: "14px" }}>
+                      {Array.from(evidence2.first).map((file, index) => (
+                        <div style={{ marginBottom: 8 }} key={index}>
+                          {file.name}
+                        </div>
+                      ))}
+                    </span>
+                  )}
+                </Stack>
               </Card>
-              <Card variant="outlined" sx={{ p: 2 }}>
+              <Card variant="outlined" sx={{ p: 2, borderRadius: "15px" }}>
                 <Typography variant="subtitle1">
                   แผนบริหารความเสี่ยงของส่วนงาน/หน่วยงาน
                 </Typography>
-                <input
-                  type="file"
-                  accept=".pdf"
-                  multiple
-                  onChange={(e) =>
-                    setEvidence2({ ...evidence2, second: e.target.files })
-                  }
-                />
+                <Stack direction={"row"} spacing={2}>
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    multiple
+                    onChange={(e) =>
+                      setEvidence2({ ...evidence2, second: e.target.files })
+                    }
+                    style={{ display: "none" }}
+                    id="evidence2-second"
+                  />
+                  <label
+                    htmlFor="evidence2-second"
+                    style={{
+                      borderRadius: 10,
+                      backgroundColor: "#b43b6b",
+                      color: "white",
+                      padding: "8px 12px",
+                      border: "none",
+                      cursor: "pointer",
+                      display: "inline-block",
+                      marginTop: "8px",
+                      marginLeft: 0,
+                      height: "20px",
+                    }}
+                  >
+                    อัปโหลด
+                  </label>
+                  {evidence2.second && (
+                    <span style={{ marginTop: "8px", fontSize: "14px" }}>
+                      {Array.from(evidence2.second).map((file, index) => (
+                        <div style={{ marginBottom: 8 }} key={index}>
+                          {file.name}
+                        </div>
+                      ))}
+                    </span>
+                  )}
+                </Stack>
               </Card>
-              <Card variant="outlined" sx={{ p: 2 }}>
+              <Card variant="outlined" sx={{ p: 2, borderRadius: "15px" }}>
                 <Typography variant="subtitle1">
                   การถ่ายทอดแผนบริหารความเสี่ยงไปยังส่วนงาน/หน่วยงานย่อยหรือผู้รับผิดชอบในระดับปฏิบัติอย่างไร
                 </Typography>
-                <input
-                  type="file"
-                  accept=".pdf"
-                  multiple
-                  onChange={(e) =>
-                    setEvidence2({ ...evidence2, third: e.target.files })
-                  }
-                />
+                <Stack direction={"row"} spacing={2}>
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    multiple
+                    onChange={(e) =>
+                      setEvidence2({ ...evidence2, third: e.target.files })
+                    }
+                    style={{ display: "none" }}
+                    id="evidence2-third"
+                  />
+                  <label
+                    htmlFor="evidence2-third"
+                    style={{
+                      borderRadius: 10,
+                      backgroundColor: "#b43b6b",
+                      color: "white",
+                      padding: "8px 12px",
+                      border: "none",
+                      cursor: "pointer",
+                      display: "inline-block",
+                      marginTop: "8px",
+                      marginLeft: 0,
+                      height: "20px",
+                    }}
+                  >
+                    อัปโหลด
+                  </label>
+                  {evidence2.third && (
+                    <span style={{ marginTop: "8px", fontSize: "14px" }}>
+                      {Array.from(evidence2.third).map((file, index) => (
+                        <div style={{ marginBottom: 8 }} key={index}>
+                          {file.name}
+                        </div>
+                      ))}
+                    </span>
+                  )}
+                </Stack>
               </Card>
             </Stack>
           </CardContent>
         </Card>
 
-        <Card sx={{ mb: 4 }}>
+        <Card sx={{ mb: 4, border: 1, borderRadius: "30px" }}>
           <CardContent>
-            <Typography variant="h6" gutterBottom>
+            <Typography variant="h6" gutterBottom sx={{ textAlign: "center" }}>
               การติดตามและรายงานผลการบริหารความเสี่ยง
             </Typography>
-            <Card variant="outlined" sx={{ p: 2 }}>
+            <Card variant="outlined" sx={{ p: 2, borderRadius: "15px" }}>
               <Typography variant="subtitle1">
                 การติดตามความเสี่ยงอย่างสม่ำเสมอ
               </Typography>
-              <input
-                type="file"
-                accept=".pdf"
-                multiple
-                onChange={(e) =>
-                  setEvidence3({ ...evidence3, first: e.target.files })
-                }
-              />
+              <Stack direction={"row"} spacing={2}>
+                <input
+                  type="file"
+                  accept=".pdf"
+                  multiple
+                  onChange={(e) =>
+                    setEvidence3({ ...evidence3, first: e.target.files })
+                  }
+                  style={{ display: "none" }}
+                  id="evidence3-first"
+                />
+                <label
+                  htmlFor="evidence3-first"
+                  style={{
+                    borderRadius: 10,
+                    backgroundColor: "#b43b6b",
+                    color: "white",
+                    padding: "8px 12px",
+                    border: "none",
+                    cursor: "pointer",
+                    display: "inline-block",
+                    marginTop: "8px",
+                    marginLeft: 0,
+                    height: "20px",
+                  }}
+                >
+                  อัปโหลด
+                </label>
+                {evidence3.first && (
+                  <span style={{ marginTop: "8px", fontSize: "14px" }}>
+                    {Array.from(evidence3.first).map((file, index) => (
+                      <div style={{ marginBottom: 8 }} key={index}>
+                        {file.name}
+                      </div>
+                    ))}
+                  </span>
+                )}
+              </Stack>
             </Card>
           </CardContent>
         </Card>
 
-        <Card sx={{ mb: 4 }}>
+        <Card sx={{ mb: 4, border: 1, borderRadius: "30px" }}>
           <CardContent>
-            <Typography variant="h6" gutterBottom>
+            <Typography variant="h6" gutterBottom sx={{ textAlign: "center" }}>
               วัฒนธรรมและความตระหนักด้านการบริหารความเสี่ยง
             </Typography>
             <Stack spacing={2}>
-              <Card variant="outlined" sx={{ p: 2 }}>
+              <Card variant="outlined" sx={{ p: 2, borderRadius: "15px" }}>
                 <Typography variant="subtitle1">
                   กิจกรรมสร้างความตระหนักด้านความเสี่ยง
                 </Typography>
-                <input
-                  type="file"
-                  accept=".pdf"
-                  multiple
-                  onChange={(e) =>
-                    setEvidence4({ ...evidence4, first: e.target.files })
-                  }
-                />
+                <Stack direction={"row"} spacing={2}>
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    multiple
+                    onChange={(e) =>
+                      setEvidence4({ ...evidence4, first: e.target.files })
+                    }
+                    style={{ display: "none" }}
+                    id="evidence4-first"
+                  />
+                  <label
+                    htmlFor="evidence4-first"
+                    style={{
+                      borderRadius: 10,
+                      backgroundColor: "#b43b6b",
+                      color: "white",
+                      padding: "8px 12px",
+                      border: "none",
+                      cursor: "pointer",
+                      display: "inline-block",
+                      marginTop: "8px",
+                      marginLeft: 0,
+                      height: "20px",
+                    }}
+                  >
+                    อัปโหลด
+                  </label>
+                  {evidence4.first && (
+                    <span style={{ marginTop: "8px", fontSize: "14px" }}>
+                      {Array.from(evidence4.first).map((file, index) => (
+                        <div style={{ marginBottom: 8 }} key={index}>
+                          {file.name}
+                        </div>
+                      ))}
+                    </span>
+                  )}
+                </Stack>
               </Card>
-              <Card variant="outlined" sx={{ p: 2 }}>
+              <Card variant="outlined" sx={{ p: 2, borderRadius: "15px" }}>
                 <Typography variant="subtitle1">
                   การมีส่วนร่วมของบุคลากรในการบริหารความเสี่ยง
                 </Typography>
-                <input
-                  type="file"
-                  accept=".pdf"
-                  multiple
-                  onChange={(e) =>
-                    setEvidence4({ ...evidence4, second: e.target.files })
-                  }
-                />
+                <Stack direction={"row"} spacing={2}>
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    multiple
+                    onChange={(e) =>
+                      setEvidence4({ ...evidence4, second: e.target.files })
+                    }
+                    style={{ display: "none" }}
+                    id="evidence4-second"
+                  />
+                  <label
+                    htmlFor="evidence4-second"
+                    style={{
+                      borderRadius: 10,
+                      backgroundColor: "#b43b6b",
+                      color: "white",
+                      padding: "8px 12px",
+                      border: "none",
+                      cursor: "pointer",
+                      display: "inline-block",
+                      marginTop: "8px",
+                      marginLeft: 0,
+                      height: "20px",
+                    }}
+                  >
+                    อัปโหลด
+                  </label>
+                  {evidence4.second && (
+                    <span style={{ marginTop: "8px", fontSize: "14px" }}>
+                      {Array.from(evidence4.second).map((file, index) => (
+                        <div style={{ marginBottom: 8 }} key={index}>
+                          {file.name}
+                        </div>
+                      ))}
+                    </span>
+                  )}
+                </Stack>
               </Card>
             </Stack>
           </CardContent>
         </Card>
 
-        <Card sx={{ mb: 4 }}>
+        <Card sx={{ mb: 4, border: 1, borderRadius: "30px" }}>
           <CardContent>
-            <Typography variant="h6" gutterBottom>
-              Upload Project Summary (PDF)
+            <Typography variant="h6" gutterBottom sx={{ textAlign: "center" }}>
+              อัปโหลดสรุปโครงการ (PDF)
             </Typography>
-            <input
-              ref={projectRef}
-              type="file"
-              accept=".pdf"
-              required
-              onChange={(e) => setProjectFile(e.target.files)}
-            />
+            <Stack direction={"row"} spacing={2}>
+              <input
+                ref={projectRef}
+                type="file"
+                accept=".pdf"
+                required
+                onChange={(e) => setProjectFile(e.target.files)}
+                style={{ display: "none" }}
+                id="project-file"
+              />
+              <label
+                htmlFor="project-file"
+                style={{
+                  borderRadius: 10,
+                  backgroundColor: "#b43b6b",
+                  color: "white",
+                  padding: "8px 12px",
+                  border: "none",
+                  cursor: "pointer",
+                  display: "inline-block",
+                  marginTop: "8px",
+                  marginLeft: 0,
+                  height: "20px",
+                }}
+              >
+                อัปโหลด
+              </label>
+              {projectFile && (
+                <span style={{ marginTop: "14px", fontSize: "16px" }}>
+                  {Array.from(projectFile).map((file, index) => (
+                    <div key={index}>{file.name}</div>
+                  ))}
+                </span>
+              )}
+            </Stack>
             {errors.project && (
               <Typography color="error" variant="body2">
                 กรุณาอัปโหลดไฟล์สรุปโครงการ
@@ -406,8 +770,8 @@ export default function ProjectSubmissionForm() {
         </Card>
 
         <Box textAlign="center" sx={{ mt: 2 }}>
-          <Button variant="contained" type="submit">
-            Submit
+          <Button sx={{backgroundColor: "#b43b6b"}} variant="contained" type="submit">
+            ส่ง
           </Button>
         </Box>
       </Box>
@@ -428,7 +792,7 @@ export default function ProjectSubmissionForm() {
             >
               <CircularProgress size={80} />
               <Typography>
-                Uploading, please do not close this page...
+                กำลังอัพโหลด กรุณาอย่าปิดหน้านี้...
               </Typography>
             </Box>
           )}
