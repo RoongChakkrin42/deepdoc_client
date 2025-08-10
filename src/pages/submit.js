@@ -278,7 +278,7 @@ export default function ProjectSubmissionForm() {
                     htmlFor="evidence1-first"
                     style={{
                       borderRadius: 10,
-                      backgroundColor: "#eb038b",
+                      backgroundColor: "#b43b6b",
                       color: "white",
                       padding: "8px 12px",
                       border: "none",
@@ -321,7 +321,7 @@ export default function ProjectSubmissionForm() {
                     htmlFor="evidence1-second"
                     style={{
                       borderRadius: 10,
-                      backgroundColor: "#eb038b",
+                      backgroundColor: "#b43b6b",
                       color: "white",
                       padding: "8px 12px",
                       border: "none",
@@ -364,7 +364,7 @@ export default function ProjectSubmissionForm() {
                     htmlFor="evidence1-third"
                     style={{
                       borderRadius: 10,
-                      backgroundColor: "#eb038b",
+                      backgroundColor: "#b43b6b",
                       color: "white",
                       padding: "8px 12px",
                       border: "none",
@@ -407,7 +407,7 @@ export default function ProjectSubmissionForm() {
                     htmlFor="evidence1-fourth"
                     style={{
                       borderRadius: 10,
-                      backgroundColor: "#eb038b",
+                      backgroundColor: "#b43b6b",
                       color: "white",
                       padding: "8px 12px",
                       border: "none",
@@ -460,7 +460,7 @@ export default function ProjectSubmissionForm() {
                     htmlFor="evidence2-first"
                     style={{
                       borderRadius: 10,
-                      backgroundColor: "#eb038b",
+                      backgroundColor: "#b43b6b",
                       color: "white",
                       padding: "8px 12px",
                       border: "none",
@@ -503,7 +503,7 @@ export default function ProjectSubmissionForm() {
                     htmlFor="evidence2-second"
                     style={{
                       borderRadius: 10,
-                      backgroundColor: "#eb038b",
+                      backgroundColor: "#b43b6b",
                       color: "white",
                       padding: "8px 12px",
                       border: "none",
@@ -546,7 +546,7 @@ export default function ProjectSubmissionForm() {
                     htmlFor="evidence2-third"
                     style={{
                       borderRadius: 10,
-                      backgroundColor: "#eb038b",
+                      backgroundColor: "#b43b6b",
                       color: "white",
                       padding: "8px 12px",
                       border: "none",
@@ -598,7 +598,7 @@ export default function ProjectSubmissionForm() {
                   htmlFor="evidence3-first"
                   style={{
                     borderRadius: 10,
-                    backgroundColor: "#eb038b",
+                    backgroundColor: "#b43b6b",
                     color: "white",
                     padding: "8px 12px",
                     border: "none",
@@ -650,7 +650,7 @@ export default function ProjectSubmissionForm() {
                     htmlFor="evidence4-first"
                     style={{
                       borderRadius: 10,
-                      backgroundColor: "#eb038b",
+                      backgroundColor: "#b43b6b",
                       color: "white",
                       padding: "8px 12px",
                       border: "none",
@@ -693,7 +693,7 @@ export default function ProjectSubmissionForm() {
                     htmlFor="evidence4-second"
                     style={{
                       borderRadius: 10,
-                      backgroundColor: "#eb038b",
+                      backgroundColor: "#b43b6b",
                       color: "white",
                       padding: "8px 12px",
                       border: "none",
@@ -740,7 +740,7 @@ export default function ProjectSubmissionForm() {
                 htmlFor="project-file"
                 style={{
                   borderRadius: 10,
-                  backgroundColor: "#eb038b",
+                  backgroundColor: "#b43b6b",
                   color: "white",
                   padding: "8px 12px",
                   border: "none",
@@ -770,7 +770,7 @@ export default function ProjectSubmissionForm() {
         </Card>
 
         <Box textAlign="center" sx={{ mt: 2 }}>
-          <Button sx={{backgroundColor: "#eb038b"}} variant="contained" type="submit">
+          <Button sx={{backgroundColor: "#b43b6b"}} variant="contained" type="submit">
             ส่ง
           </Button>
         </Box>

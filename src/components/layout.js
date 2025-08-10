@@ -17,7 +17,7 @@ export default function Layout({ children }) {
   };
   return (
     <>
-      <AppBar position="fixed" elevation={1} sx={{ zIndex: 9999, backgroundColor: '#eb038b' }}>
+      <AppBar position="fixed" elevation={1} sx={{ zIndex: 9999, backgroundColor: '#b43b6b' }}>
         <Toolbar sx={{ gap: 3, flexWrap: "wrap" }}>
           <Typography variant="h4">
             DeepDoc
@@ -27,24 +27,24 @@ export default function Layout({ children }) {
             sx={{ cursor: 'pointer' }} 
             onClick={() => router.push("/submit")}
           >
-            Submit
+            ส่งโครงการ
           </Typography>
           <Typography 
             variant="subtitle1" 
             sx={{ cursor: 'pointer' }} 
             onClick={() => router.push("/results")}
           >
-            Results
+            ผลตรวจ
           </Typography>
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: "flex", gap: 2 }}>
             {session.access_token != null && (
               <Button
-                color="error"
                 variant="contained"
                 onClick={handleLogout}
+                sx={{ backgroundColor: 'white', color: 'black', '&:hover': { backgroundColor: '#f5f5f5' } }}
               >
-                Logout
+                ออกจากระบบ
               </Button>
             )}
           </Box>
@@ -69,7 +69,7 @@ export default function Layout({ children }) {
           zIndex: 9999
         }}
       >
-        <p style={{ margin: 0 }}>© 2025 DeepDoc Powered by Chulalongkorn University</p>
+        <p style={{ margin: 0 }}>© 2025 DeepDoc</p>
       </footer>
     </>
   );

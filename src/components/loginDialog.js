@@ -54,17 +54,18 @@ export default function Login() {
         e.key === "Enter" && username && password && handleLogin()
       }
     >
-      <DialogTitle>Login</DialogTitle>
+      <DialogTitle>เข้าสู่ระบบ</DialogTitle>
       <DialogContent
-        sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}
+        sx={{ display: "flex", flexDirection: "column", gap: 2 }}
       >
         <TextField
-          label="Username"
+          label="ชื่อผู้ใช้งาน"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
+          sx={{mt: 2}}
         />
         <TextField
-          label="Password"
+          label="รหัสผ่าน"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -75,8 +76,10 @@ export default function Login() {
           variant="contained"
           onClick={handleLogin}
           disabled={username == "" || password == ""}
+          sx={{ backgroundColor: '#b43b6b', color: 'white' }}
+
         >
-          Submit
+          เข้าสู่ระบบ
         </Button>
       </DialogActions>
     </Dialog>
