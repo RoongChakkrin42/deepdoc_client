@@ -1,8 +1,10 @@
 # DeepDoc Client
 
-The web front end for [DeepDoc](https://github.com/RoongChakkrin42/deepdoc) — a Next.js app where students submit project reports for AI grading and reviewers read the results.
+The web front end for [DeepDoc](https://github.com/RoongChakkrin42/deepdoc) — entrants submit a risk-management report for AI grading, reviewers read the results.
 
-Next.js 15 · TypeScript · MUI 7 · Redux Toolkit · redux-persist
+It serves the **Chula Risk Management Excellence (RMEx) Award** at Chulalongkorn University: a single report PDF is graded against 5 dimensions and 15 criteria, and this is where people upload it and read what came back.
+
+**Stack:** Next.js 15 (pages router) · TypeScript · MUI 7 · Redux Toolkit · redux-persist · axios
 
 > 🇹🇭 [สรุปภาษาไทยอยู่ท้ายไฟล์](#สรุปภาษาไทย)
 
@@ -12,51 +14,69 @@ Next.js 15 · TypeScript · MUI 7 · Redux Toolkit · redux-persist
 
 | Route | Auth | Purpose |
 | --- | --- | --- |
-| `/submit` | public | Upload a project report and its evidence PDFs |
-| `/results` | reviewer | Ranked results per year, with per-dimension scores and the source PDFs |
+| `/submit` | public | Upload one report PDF, with the rubric shown as a checklist |
+| `/results` | reviewer | A year's results ranked, with per-criterion levels and the source PDF |
 | `/` | — | Redirects to `/submit` |
 
 ---
 
-## Two things worth looking at
+## The problems it solves
 
-### The submission form builds itself
+### The form doesn't own the rubric
 
-`/submit` renders nothing hardcoded. On mount it fetches `GET /submissions/form-schema` and generates a section per rubric dimension and an upload field per criterion, using the multipart field names the server tells it to use:
+Criteria used to be duplicated between this form, the server's controller and its multer config — three copies that had already drifted apart. Now `/submit` fetches `GET /submissions/form-schema` on mount and renders everything from it. Editing `rubric.ts` on the backend changes this page with no commit here.
+
+A submission is one document, so the page has exactly one upload field. But a lone file input tells a submitter nothing about what to write, so the rest of the page is the rubric itself — every criterion, its required evidence, and the concrete checks a grader has to be able to tick off — plus the award-tier thresholds:
 
 ```tsx
 {schema.dimensions.map((dimension) => (
-  <Card key={dimension.index}>
-    <Typography>มิติที่ {dimension.index}: {dimension.title}</Typography>
-    {dimension.criteria.map((criterion) => (
-      <FileUploadField
-        key={criterion.field}
-        label={`${criterion.code} ${criterion.title}`}
-        helperText={`หลักฐานที่ต้องแสดง: ${criterion.evidenceRequirement}`}
-        files={files[criterion.field] ?? []}
-        onChange={(next) => setFilesFor(criterion.field, next)}
-      />
-    ))}
-  </Card>
+  <Accordion key={dimension.index}>
+    <AccordionSummary>
+      มิติที่ {dimension.index}: {dimension.title} <Chip label={`${dimension.weight}%`} />
+    </AccordionSummary>
+    <AccordionDetails>
+      {dimension.criteria.map((criterion) => (
+        <Box key={criterion.code}>
+          <Typography>{criterion.code} {criterion.title}</Typography>
+          <Typography variant="caption">
+            หลักฐานที่ต้องแสดง: {criterion.evidenceRequirement}
+          </Typography>
+          {criterion.checks.map((check) => <li key={check}>{check}</li>)}
+        </Box>
+      ))}
+    </AccordionDetails>
+  </Accordion>
 ))}
 ```
 
-Adding a criterion on the backend adds a field here with no change to this repo. Previously the same field names were duplicated between the form, the server's controller and its multer config — and had already drifted out of sync.
+### A score with no reasoning is not reviewable
+
+The detail view shows each criterion's maturity level, the text the model **quoted out of the report** to justify it, and the rubric checks it could not find. The dimension row shows the arithmetic openly — `83.33/100 × 30% = 25` — and anything odd about the run, such as a level awarded with nothing quoted behind it, surfaces as a warning. A reviewer can disagree with a specific line rather than with a number.
 
 ### Grading is asynchronous, so the UI says so
 
-An analysis takes tens of seconds, so `POST /submissions` returns `202` immediately and the reviewer page polls — but only while something is actually in flight, and it stops as soon as everything has settled:
+An analysis takes tens of seconds and `POST /submissions` returns `202` immediately. `/results` polls — but only while something is actually in flight, and it stops as soon as everything has settled:
 
 ```tsx
 const inFlight = submissions.some(
   (item) => item.status === 'pending' || item.status === 'processing',
 );
 if (!inFlight) return;
-
 pollTimer.current = setTimeout(() => void load(year, false), POLL_INTERVAL_MS);
 ```
 
-Every submission carries a status chip, failures show their reason, and a failed analysis can be re-run from the table without re-uploading anything.
+Every row carries a status chip, failures show their reason, and a failed analysis can be re-run from the table without re-uploading anything.
+
+### Sessions used to die on refresh, and the login was fake
+
+An admin username and password were hardcoded in the login dialog — they are gone, and the app now uses the API's real JWT flow. `redux-persist` was a dependency that had never been wired up, so every refresh logged the reviewer out; it now persists the session behind a `PersistGate`, so the login dialog does not flash for someone already authenticated.
+
+`lib/api.ts` is the only module that touches the network. It attaches the bearer token, and on a `401` it spends the refresh token once, replays the request, and clears the session if that fails too. Concurrent 401s share a single in-flight refresh:
+
+```ts
+refreshing = refreshing ?? refreshTokens();
+const tokens = await refreshing;
+```
 
 ---
 
@@ -64,90 +84,73 @@ Every submission carries a status chip, failures show their reason, and a failed
 
 ```bash
 npm install
-cp .env.example .env.local     # point it at your API
+cp .env.example .env.local     # point NEXT_PUBLIC_BACKENDURL at your API
 npm run dev                    # http://localhost:3000
 ```
 
-The API from [`deepdoc_server`](https://github.com/RoongChakkrin42/deepdoc) must be running, and this app's origin must be listed in its `CORS_ORIGINS`.
-
-| Variable | Default | Notes |
-| --- | --- | --- |
-| `NEXT_PUBLIC_BACKENDURL` | `http://localhost:8000` | Base URL of the API, called from the browser |
-
-### Scripts
+The API from [`deepdoc_server`](https://github.com/RoongChakkrin42/deepdoc) must be running, and this origin must appear in its `CORS_ORIGINS`. `/results` needs a reviewer account — create one with `npm run seed:reviewer` in the API repo.
 
 ```bash
-npm run dev      # dev server
 npm run build    # production build (also type-checks)
-npm start        # serve the build
-npm run lint     # eslint
-npm run lint:fix
+npm run lint
 ```
-
----
-
-## Structure
 
 ```
 src/
   pages/         _app, index (redirect), submit, results
   components/    Layout, LoginDialog, submit/, results/
-  lib/
-    api.ts       axios instance, auth interceptors, typed endpoints
-    types.ts     mirrors the server's response payloads
+  lib/           api.ts (network + auth), types.ts (mirrors server payloads)
   store/         Redux Toolkit + redux-persist
-  theme.ts       MUI theme
 ```
-
-**`lib/api.ts`** is the only place that talks to the network. It attaches the bearer token, and on a `401` it spends the refresh token once, replays the request, and clears the session if that fails too — concurrent 401s share a single refresh:
-
-```ts
-refreshing = refreshing ?? refreshTokens();
-const tokens = await refreshing;
-```
-
-**`store/`** persists the session to `localStorage` through `redux-persist`, behind a `PersistGate` so the login dialog does not flash for an already-authenticated reviewer. `redux-persist` was a dependency before but was never wired up, so every refresh logged the reviewer out.
 
 ---
 
 ## Notes
 
-- Session tokens live in `localStorage`, which is readable by any script on the origin. httpOnly cookies would be the stricter choice; this keeps the demo's auth flow readable in one file.
-- The reviewer pages gate on the presence of a token, not on a role — the API is what actually enforces access.
-- `npm audit` reports three high advisories in `sharp`, pulled in transitively by `next`. They are **not reachable here** — `sharp` only runs behind `next/image`, which this app does not use. Clearing them requires Next 16, a breaking major; revisit at the next framework upgrade.
+- Session tokens live in `localStorage`, readable by any script on the origin. httpOnly cookies would be stricter; this keeps the auth flow readable in one file.
+- The reviewer pages gate on the presence of a token, not a role — the API enforces access.
+- `src/lib/types.ts` mirrors the server's payloads by hand. Update both together when a response shape changes.
+- `npm audit` reports three high advisories in `sharp`, pulled in transitively by `next`. They are **not reachable here** — `sharp` only runs behind `next/image`, which this app does not use. Clearing them requires Next 16, a breaking major.
 
 ---
 
 ## สรุปภาษาไทย
 
-**DeepDoc Client** คือหน้าเว็บของระบบ DeepDoc เขียนด้วย Next.js 15 + TypeScript + MUI
+**DeepDoc Client** คือหน้าเว็บของระบบ DeepDoc สำหรับรางวัล **Chula RMEx Award** ของจุฬาลงกรณ์มหาวิทยาลัย ผู้ส่งใช้อัปโหลดรายงานการบริหารความเสี่ยงเข้ามาให้ AI ตรวจ ส่วนผู้ตรวจใช้ดูผลที่ประเมินแล้ว
 
-**หน้าจอ**
+**เทคโนโลยี:** Next.js 15 (pages router) · TypeScript · MUI 7 · Redux Toolkit · redux-persist · axios
 
-| เส้นทาง | สิทธิ์ | ใช้ทำอะไร |
+| หน้า | สิทธิ์ | ใช้ทำอะไร |
 | --- | --- | --- |
-| `/submit` | ใครก็ได้ | ส่งเอกสารโครงการพร้อมไฟล์หลักฐาน |
-| `/results` | ผู้ตรวจ | ดูผลการประเมินรายปี เรียงตามคะแนน พร้อมเปิดไฟล์ต้นฉบับ |
+| `/submit` | ใครก็ได้ | อัปโหลดรายงาน PDF ไฟล์เดียว พร้อมดู checklist เกณฑ์ทั้ง 15 ข้อ |
+| `/results` | ผู้ตรวจ | ดูผลรายปี เรียงตามคะแนน พร้อมเปิดไฟล์ต้นฉบับ |
 
-**จุดเด่น**
+### ปัญหาหลักที่แก้ และวิธีแก้
 
-- **ฟอร์มสร้างตัวเองจาก API** — ดึงเกณฑ์จาก `GET /submissions/form-schema` แล้วสร้างช่องอัปโหลดตามเกณฑ์ เพิ่มเกณฑ์ที่ backend แล้วหน้านี้ขึ้นเองโดยไม่ต้องแก้โค้ด
-- **แสดงสถานะการประเมินตามจริง** — มี chip บอกสถานะทุกแถว ถ้า AI ประเมินไม่สำเร็จจะบอกเหตุผล และกดสั่งประเมินใหม่ได้เลย ไม่ต้องอัปโหลดซ้ำ
-- **poll เฉพาะตอนที่ยังมีงานค้าง** และหยุดเองเมื่อทุกงานเสร็จ
-- **จำ session ได้** ผ่าน redux-persist (ของเดิมมี dependency แต่ไม่ได้ต่อ รีเฟรชทีไรก็หลุด login)
+**1. เกณฑ์เคยถูกเขียนซ้ำหลายที่** — ชื่อ field และรายการเกณฑ์เคยอยู่ทั้งในฟอร์มนี้ ใน controller และใน multer config ของ server สามชุดที่ไม่ตรงกันแล้ว ตอนนี้หน้า `/submit` ดึงจาก `GET /submissions/form-schema` ตอนโหลด แก้ `rubric.ts` ที่ backend แล้วหน้านี้เปลี่ยนตามเองโดยไม่ต้องแก้โค้ดฝั่งนี้
 
-**สิ่งที่แก้จากเวอร์ชันแรก**
+**2. ช่องอัปโหลดช่องเดียวไม่บอกอะไรผู้ส่งเลย** — เนื่องจากผลงานคือเอกสารฉบับเดียว ฟอร์มจึงเหลือช่องอัปโหลดช่องเดียว แต่ที่เหลือของหน้าคือตัวเกณฑ์ทั้งหมด แสดงเป็น accordion รายมิติ พร้อมหลักฐานที่ต้องแสดง รายการที่ต้องตรวจให้ได้ และเกณฑ์ระดับรางวัล เพื่อให้ผู้ส่งเช็คก่อนอัปว่ารายงานครอบคลุมครบไหม
 
-- แปลงเป็น TypeScript ทั้งหมด
-- ลบหน้า `analyze.js` ที่ตายแล้ว (ยิงไป endpoint ที่ไม่มีอยู่)
-- **ลบ username/password ของ admin ที่ hardcode ไว้ใน `loginDialog.js`** ⚠️ รหัสนั้นขึ้น GitHub ไปแล้ว ควรเปลี่ยนรหัสจริงด้วย ไม่ใช่แค่ลบโค้ด
-- เปิดใช้ validation ของฟอร์ม (ของเดิมเขียนไว้แต่ comment ทิ้ง ทำให้ส่งฟอร์มเปล่าได้)
-- รวมการเรียก API ไว้ที่ `lib/api.ts` ที่เดียว พร้อม refresh token อัตโนมัติ
+**3. คะแนนที่ไม่มีเหตุผลประกอบ ตรวจต่อไม่ได้** — หน้ารายละเอียดแสดงระดับที่ได้ของทุกเกณฑ์ **ข้อความจริงที่ AI ยกมาจากเอกสาร** และรายการที่หาไม่พบ พร้อมโชว์การคิดเลขแบบเปิดเผย เช่น `83.33/100 × 30% = 25` ถ้ามีอะไรผิดปกติในรอบนั้นจะขึ้นเป็นคำเตือน ผู้ตรวจจึงเถียงเป็นรายบรรทัดได้ ไม่ใช่เถียงกับตัวเลขลอย ๆ
 
-**เริ่มใช้งาน**
+**4. การตรวจใช้เวลานาน แต่ UI เคยเงียบ** — `POST /submissions` ตอบ `202` ทันที หน้า `/results` จึง poll ทุก 8 วินาที แต่ poll เฉพาะตอนที่ยังมีงานค้าง และหยุดเองเมื่อทุกงานเสร็จ ทุกแถวมี chip บอกสถานะ ถ้าประเมินไม่สำเร็จจะบอกเหตุผล และกดสั่งประเมินใหม่ได้เลยโดยไม่ต้องอัปโหลดซ้ำ
+
+**5. login ปลอม และ session หลุดทุกครั้งที่รีเฟรช** — ของเดิม hardcode username/password ของ admin ไว้ในไฟล์ login (ลบออกแล้ว และรหัสนั้นขึ้น GitHub ไปแล้ว ควรเปลี่ยนรหัสจริงด้วย) ตอนนี้ใช้ JWT จริงจาก API ส่วน `redux-persist` เดิมมีเป็น dependency แต่ไม่ได้ต่อ ทำให้รีเฟรชทีไรก็หลุด login ตอนนี้ต่อแล้วผ่าน `PersistGate`
+
+**6. การเรียก API กระจัดกระจาย** — รวมไว้ที่ `lib/api.ts` ที่เดียว แนบ token ให้อัตโนมัติ และเมื่อเจอ `401` จะใช้ refresh token ต่ออายุแล้วยิงซ้ำให้เอง ถ้ายังไม่ผ่านค่อยล้าง session โดยคำขอหลายอันที่เจอ 401 พร้อมกันจะใช้การ refresh ครั้งเดียวร่วมกัน
+
+### เริ่มใช้งาน
 
 ```bash
 npm install
-cp .env.example .env.local     # ชี้ไปที่ API
-npm run dev
+cp .env.example .env.local     # ตั้ง NEXT_PUBLIC_BACKENDURL ให้ชี้ไปที่ API
+npm run dev                    # http://localhost:3000
 ```
+
+ต้องเปิด API จาก [`deepdoc_server`](https://github.com/RoongChakkrin42/deepdoc) ไว้ด้วย และต้องใส่ origin ของหน้านี้ใน `CORS_ORIGINS` ของฝั่ง API ส่วนหน้า `/results` ต้องมีบัญชีผู้ตรวจ สร้างได้ด้วย `npm run seed:reviewer` ใน repo ของ API
+
+### ข้อควรรู้
+
+- token เก็บใน `localStorage` ซึ่งสคริปต์ใด ๆ บน origin เดียวกันอ่านได้ ถ้าเข้มงวดกว่านี้ควรใช้ httpOnly cookie แต่แบบนี้อ่านโค้ด auth จบในไฟล์เดียว
+- หน้าฝั่งผู้ตรวจเช็คแค่ว่ามี token ไหม ไม่ได้เช็ค role — ตัวที่บังคับสิทธิ์จริงคือ API
+- `src/lib/types.ts` เขียนตามโครงสร้าง payload ของ server ด้วยมือ เวลาแก้ response shape ต้องแก้ทั้งสองฝั่งพร้อมกัน

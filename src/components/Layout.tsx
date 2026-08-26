@@ -12,7 +12,7 @@ import { useAppDispatch, useAppSelector } from '@/store';
 import { clearSession } from '@/store/sessionSlice';
 
 const NAV = [
-  { href: '/submit', label: 'ส่งโครงการ' },
+  { href: '/submit', label: 'ส่งผลงาน' },
   { href: '/results', label: 'ผลตรวจ' },
 ];
 

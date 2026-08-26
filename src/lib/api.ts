@@ -109,7 +109,7 @@ export const api = {
     onProgress?: (percent: number) => void,
   ): Promise<{ id: string; status: string }> {
     const { data } = await client.post('/submissions', formData, {
-      // Uploading a report plus its evidence can legitimately take minutes.
+      // A report PDF over a slow uplink can legitimately take minutes.
       timeout: 10 * 60_000,
       onUploadProgress: (event) => {
         if (onProgress && event.total) {

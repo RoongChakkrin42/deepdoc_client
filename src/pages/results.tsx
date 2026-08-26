@@ -3,6 +3,7 @@ import {
   Alert,
   Box,
   Button,
+  Chip,
   CircularProgress,
   FormControl,
   InputLabel,
@@ -156,7 +157,7 @@ export default function ResultsPage() {
       )}
 
       {submissions && submissions.length === 0 && (
-        <Alert severity="info">ยังไม่มีโครงการที่ส่งเข้ามาในปี {year}</Alert>
+        <Alert severity="info">ยังไม่มีผลงานที่ส่งเข้ามาในปี {year}</Alert>
       )}
 
       {submissions && submissions.length > 0 && (
@@ -164,7 +165,7 @@ export default function ResultsPage() {
           <Table size="small">
             <TableHead>
               <TableRow sx={{ bgcolor: 'primary.main' }}>
-                {['โครงการ', 'ผู้ส่ง', 'สถานะ'].map((label) => (
+                {['ผลงาน', 'ผู้ส่ง', 'สถานะ'].map((label) => (
                   <TableCell key={label} sx={{ color: 'common.white' }}>
                     {label}
                   </TableCell>
@@ -176,6 +177,9 @@ export default function ResultsPage() {
                 ))}
                 <TableCell align="center" sx={{ color: 'common.white' }}>
                   คะแนนรวม
+                </TableCell>
+                <TableCell align="center" sx={{ color: 'common.white' }}>
+                  รางวัล
                 </TableCell>
                 <TableCell align="center" sx={{ color: 'common.white' }} />
               </TableRow>
@@ -201,13 +205,27 @@ export default function ResultsPage() {
                     );
                     return (
                       <TableCell key={index} align="center">
-                        {dimension ? `${dimension.score}/${dimension.maxScore}` : '—'}
+                        {dimension
+                          ? `${dimension.weightedScore}/${dimension.weight}`
+                          : '—'}
                       </TableCell>
                     );
                   })}
 
                   <TableCell align="center" sx={{ fontWeight: 600 }}>
                     {submission.analysis ? submission.analysis.overallScore : '—'}
+                  </TableCell>
+
+                  <TableCell align="center">
+                    {submission.analysis ? (
+                      <Chip
+                        size="small"
+                        variant="outlined"
+                        label={submission.analysis.award.label}
+                      />
+                    ) : (
+                      '—'
+                    )}
                   </TableCell>
 
                   <TableCell align="center">
