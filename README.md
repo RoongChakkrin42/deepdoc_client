@@ -95,6 +95,20 @@ npm run build    # production build (also type-checks)
 npm run lint
 ```
 
+### Deployment
+
+`next.config.ts` sets `output: 'standalone'`, so the image ships a traced
+runtime rather than the whole dependency tree. GitHub Actions builds it on every
+merge to `main` and pins the tag in
+[**deepdoc-gitops**](https://github.com/RoongChakkrin42/deepdoc-gitops), where
+ArgoCD rolls it out.
+
+The one thing to know: **`NEXT_PUBLIC_BACKENDURL` is baked in at image build
+time**, not read at runtime. The deployed image is built with `/api` and served
+behind an ingress that routes `/api` to the API on the same origin — which is
+what makes one image valid in every environment, and why the browser never makes
+a cross-origin request.
+
 ```
 src/
   pages/         _app, index (redirect), submit, results
