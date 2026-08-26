@@ -1,0 +1,126 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  IMAGE: ghcr.io/${{ github.repository_owner }}/deepdoc-web
+  # This repo's default branch is `main`, unlike the API's `master`.
+  RELEASE_BRANCH: refs/heads/main
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      # There is no test suite here, and inventing a placeholder one would only
+      # make the pipeline look more thorough than it is. `next build` inside the
+      # image build is the real gate: it type-checks and lints, and a failure
+      # there fails the job below.
+
+  build:
+    needs: lint
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        if: github.ref == env.RELEASE_BRANCH
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE }}
+          tags: |
+            type=sha,prefix=sha-,format=short
+            type=ref,event=branch
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          # Native arm64. This one is not optional: npm picks
+          # @next/swc-linux-arm64-gnu from the `cpu`/`os` fields, so an x64
+          # runner would install the wrong native compiler.
+          platforms: linux/arm64
+          push: ${{ github.ref == env.RELEASE_BRANCH }}
+          # Baked into the browser bundle here and unchangeable afterwards.
+          # `/api` is same-origin behind the ingress, so one image works
+          # everywhere and no request is ever cross-origin.
+          build-args: |
+            NEXT_PUBLIC_BACKENDURL=/api
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  bump:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04-arm
+    concurrency:
+      group: gitops-bump
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/deepdoc-gitops
+          token: ${{ secrets.GITOPS_TOKEN }}
+
+      - name: Install kustomize
+        run: |
+          curl -sfLo install_kustomize.sh \
+            https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh
+          bash install_kustomize.sh 5.4.3 /usr/local/bin
+
+      - name: Pin the new image
+        run: |
+          set -euo pipefail
+          TAG="sha-${GITHUB_SHA:0:7}"
+          # manifests/web, not manifests/api — the two repos never touch the
+          # same file, which is why this cannot race.
+          cd manifests/web
+          kustomize edit set image "${IMAGE}=${IMAGE}:${TAG}"
+          cd -
+
+          git config user.name  "deepdoc-ci"
+          git config user.email "deepdoc-ci@users.noreply.github.com"
+
+          if git diff --quiet; then
+            echo "Already pinned to ${TAG}; nothing to commit."
+            exit 0
+          fi
+
+          git commit -am "web: ${TAG} [skip ci]"
+
+          for attempt in 1 2 3; do
+            if git pull --rebase && git push; then
+              exit 0
+            fi
+            echo "Push attempt ${attempt} failed; retrying."
+            sleep 5
+          done
+          echo "Could not push the image bump after 3 attempts." >&2
+          exit 1

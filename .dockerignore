@@ -1,0 +1,17 @@
+# Next resolves .env.local ahead of .env during a build, so a stray local file
+# in the context could quietly override the NEXT_PUBLIC_BACKENDURL build arg.
+.env
+.env.*
+
+node_modules
+.next
+next-env.d.ts
+*.tsbuildinfo
+
+.git
+.gitignore
+.github
+.DS_Store
+README*
+Dockerfile
+.dockerignore
