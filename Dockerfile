@@ -1,8 +1,18 @@
 # syntax=docker/dockerfile:1
 ARG NODE_VERSION=22-bookworm-slim
 
+# deps and build are pinned to $BUILDPLATFORM so the expensive part — npm ci
+# and next build, the latter driven by the native SWC compiler — runs at full
+# speed on the runner's own architecture rather than under emulation.
+#
+# This is only safe because the standalone output is architecture-independent:
+# outputFileTracing keeps @next/swc-* out of it (SWC is a build-time compiler),
+# and the traced tree contains no .node binaries at all. Verify that assumption
+# still holds if a dependency with a native addon is ever added:
+#   docker run --rm --entrypoint sh <image> -c 'find . -name "*.node"'
+#
 # ---- deps ------------------------------------------------------------------
-FROM node:${NODE_VERSION} AS deps
+FROM --platform=$BUILDPLATFORM node:${NODE_VERSION} AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm npm ci
@@ -11,7 +21,7 @@ RUN --mount=type=cache,target=/root/.npm npm ci
 # Extends deps rather than installing with --omit=dev: `next build` type-checks
 # and lints as part of the build, so typescript, @types/* and eslint-config-next
 # all have to be present.
-FROM deps AS build
+FROM --platform=$BUILDPLATFORM deps AS build
 WORKDIR /app
 
 # NEXT_PUBLIC_* is substituted into the browser bundle here, at build time — it
