@@ -95,6 +95,24 @@ npm run build    # production build (also type-checks)
 npm run lint
 ```
 
+### Two build outputs
+
+`npm run build` produces a Node server traced into `.next/standalone`, which is
+what the container image ships.
+
+`NEXT_OUTPUT=export npm run build` instead writes plain files to `out/`. Every
+page here is client-rendered — the `/` redirect happens in an effect rather than
+in `getServerSideProps` — so there is nothing for a server to do at request
+time, and a static host can serve the whole frontend. On a free tier that means
+no container to spin down, and therefore no cold start in front of a visitor.
+Export mode also turns on `trailingSlash`, so Next emits `submit/index.html`
+rather than `submit.html` and `/submit` resolves on any host without a
+host-specific rewrite rule.
+
+Remember that `NEXT_PUBLIC_BACKENDURL` is fixed at build time either way. Served
+same-origin behind an ingress it is `/api`; served from a static host it has to
+be the API's absolute URL, and that URL must appear in the API's `CORS_ORIGINS`.
+
 ### Deployment
 
 `next.config.ts` sets `output: 'standalone'`, so the image ships a traced
