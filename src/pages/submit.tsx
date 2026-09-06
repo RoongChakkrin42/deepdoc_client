@@ -21,6 +21,7 @@ import {
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FileUploadField from '@/components/submit/FileUploadField';
+import SampleDownloads from '@/components/submit/SampleDownloads';
 import { api, errorMessage } from '@/lib/api';
 import type { FormSchema } from '@/lib/types';
 
@@ -169,6 +170,8 @@ export default function SubmitPage() {
           {submitError}
         </Alert>
       )}
+
+      <SampleDownloads />
 
       <Card sx={{ mb: 3 }}>
         <CardContent>
