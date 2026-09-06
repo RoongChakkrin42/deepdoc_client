@@ -41,3 +41,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 yarn.lock
+
+# Reference documents from the university's Risk Management Center. They carry
+# real staff names, a personal mobile number and third-party copyright, so they
+# live outside both repos (../documents) and must never be copied in.
+documents/
+**/documents/

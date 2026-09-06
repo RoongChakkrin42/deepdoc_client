@@ -34,6 +34,10 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 COPY tsconfig.json next.config.ts eslint.config.mjs ./
 COPY src ./src
+# Static assets served straight off the origin — currently the sample reports
+# offered for download on /submit. `next build` does not read them, but the
+# runner stage copies them out of this stage.
+COPY public ./public
 RUN npm run build
 
 # ---- runner ----------------------------------------------------------------
@@ -57,11 +61,14 @@ ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# `output: 'standalone'` traces the runtime into these two directories, so
-# there is no third npm install. There is no public/ directory in this repo;
-# add a COPY for it if one ever appears, because standalone does not include it.
+# `output: 'standalone'` traces the runtime into the first two directories, so
+# there is no third npm install. `public/` is the exception: standalone does
+# not include it, and without this third COPY every file under it — the sample
+# report PDFs linked from /submit — 404s in the container while working fine
+# under `next dev`.
 COPY --from=build --chown=node:node /app/.next/standalone ./
 COPY --from=build --chown=node:node /app/.next/static ./.next/static
+COPY --from=build --chown=node:node /app/public ./public
 
 USER node
 EXPOSE 3000

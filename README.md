@@ -80,6 +80,28 @@ const tokens = await refreshing;
 
 ---
 
+### Nobody outside the university has a report to upload
+
+`/submit` grades one specific artefact: a Thai risk-management report written
+against the RMEx criteria. Anyone who is not submitting for a Chula faculty has
+nothing to put in the file field, which meant the public demo could not be tried
+at all.
+
+So `/submit` opens with three downloadable sample reports
+(`SampleDownloads.tsx` → `public/samples/`). Their sources live in
+`tools/sample-docs/` and are rendered to PDF by `tools/sample-docs/build.sh`;
+they are written from scratch, and every faculty, order number, incident and
+figure in them is invented. The real criteria documents the rubric was
+transcribed from are **not** shipped here — they carry their authors' names and
+a staff member's phone number, and they are the university's material, not ours.
+
+The three differ in how complete their evidence is — full, partial, barely
+started — so a visitor who grades all three sees the score and the award tier
+move, and sees the per-criterion reasoning explain why, rather than getting one
+number with nothing to compare it to.
+
+---
+
 ## Getting started
 
 ```bash
@@ -156,6 +178,8 @@ src/
 | --- | --- | --- |
 | `/submit` | ใครก็ได้ | อัปโหลดรายงาน PDF ไฟล์เดียว พร้อมดู checklist เกณฑ์ทั้ง 15 ข้อ |
 | `/results` | ผู้ตรวจ | ดูผลรายปี เรียงตามคะแนน พร้อมเปิดไฟล์ต้นฉบับ |
+
+หน้า `/submit` มีปุ่มดาวน์โหลด **รายงานตัวอย่าง 3 ฉบับ** ให้คนที่ไม่มีเอกสารจริงเอาไปลองส่งได้ ทั้งสามฉบับเป็นเอกสารสมมติที่เขียนขึ้นใหม่ทั้งหมด (ต้นฉบับอยู่ใน `tools/sample-docs/`) และมีความครบถ้วนของหลักฐานต่างกัน เพื่อให้เห็นว่าคะแนนกับระดับรางวัลขยับจริง
 
 ### ปัญหาหลักที่แก้ และวิธีแก้
 

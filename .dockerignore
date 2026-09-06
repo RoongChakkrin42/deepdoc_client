@@ -15,3 +15,7 @@ next-env.d.ts
 README*
 Dockerfile
 .dockerignore
+
+# Sources for the sample report PDFs. The built PDFs under public/ ship; the
+# HTML they are rendered from does not.
+tools
