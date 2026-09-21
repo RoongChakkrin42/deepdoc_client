@@ -137,17 +137,24 @@ be the API's absolute URL, and that URL must appear in the API's `CORS_ORIGINS`.
 
 ### Deployment
 
-`next.config.ts` sets `output: 'standalone'`, so the image ships a traced
-runtime rather than the whole dependency tree. GitHub Actions builds it on every
-merge to `main` and pins the tag in
-[**deepdoc-gitops**](https://github.com/RoongChakkrin42/deepdoc-gitops), where
-ArgoCD rolls it out.
+**Live at <https://deepdoc-web.onrender.com/submit/>**, served from Render as a
+static export (`NEXT_OUTPUT=export`), with the API alongside it at
+`deepdoc-api.onrender.com`. Every page here is client-rendered, so there is
+nothing for a server to do at request time and a static host can serve the lot.
 
-The one thing to know: **`NEXT_PUBLIC_BACKENDURL` is baked in at image build
-time**, not read at runtime. The deployed image is built with `/api` and served
-behind an ingress that routes `/api` to the API on the same origin — which is
-what makes one image valid in every environment, and why the browser never makes
-a cross-origin request.
+The container path is the other half of `next.config.ts` and still works —
+`output: 'standalone'` ships a traced runtime, GitHub Actions builds it on every
+merge to `main` and pins the tag in
+[**deepdoc-gitops**](https://github.com/RoongChakkrin42/deepdoc-gitops) for
+ArgoCD. That cluster does not exist yet, so the image is built and pinned but
+never pulled.
+
+The one thing to know: **`NEXT_PUBLIC_BACKENDURL` is baked in at build time**,
+not read at runtime, and the two paths bake different values. The image is built
+with `/api`, served behind an ingress that routes `/api` to the API on the same
+origin, so the browser never makes a cross-origin request. The Render build
+bakes the API's absolute URL instead, which *is* cross-origin — so there
+`CORS_ORIGINS` on the API has to name the frontend's domain, and does.
 
 ```
 src/
